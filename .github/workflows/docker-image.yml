@@ -30,6 +30,7 @@ jobs:
           # Get draw.io current latest version
           wget https://raw.githubusercontent.com/jgraph/drawio/master/VERSION
           export VERSION=`cat VERSION`
+          cat VERSION
           docker build -f ${BASE_IMAGE}/Dockerfile -t ${IMAGE_NAME}:${VERSION}-${BASE_IMAGE} ${BASE_IMAGE}/
 
       - name: Test the image works
