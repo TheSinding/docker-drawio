@@ -18,6 +18,7 @@ jobs:
       BASE_IMAGE: debian
       HTTP_PORT: 32733
       HTTPS_PORT: 32734
+      VERSION: latest
     steps:
       - uses: actions/checkout@v2
       - name: Login to docker hub
@@ -28,9 +29,8 @@ jobs:
       - name: Build the ${BASE_IMAGE} Docker image
         run: |
           # Get draw.io current latest version
-          wget https://raw.githubusercontent.com/jgraph/drawio/master/VERSION
-          export VERSION=`cat VERSION`
-          cat VERSION
+          git submodule update --init
+          export VERSION=$(cd drawio && git rev-parse --abbrev-ref HEAD)
           docker build -f ${BASE_IMAGE}/Dockerfile -t ${IMAGE_NAME}:${VERSION}-${BASE_IMAGE} ${BASE_IMAGE}/
 
       - name: Test the image works
