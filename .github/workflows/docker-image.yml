@@ -30,7 +30,8 @@ jobs:
           # Get draw.io current latest version
           git submodule update --init
           echo "VERSION=$(git --git-dir drawio/.git describe --abbrev=0 | sed s/v//)" >> $GITHUB_ENV
-          echo "FULL_IMAGE_NAME=${IMAGE_NAME}:${VERSION}-${BASE_IMAGE}" >> $GITHUB_ENV
+          export FULL_IMAGE_NAME="${IMAGE_NAME}:${VERSION}-${BASE_IMAGE}"
+          echo "FULL_IMAGE_NAME=${FULL_IMAGE_NAME}" >> $GITHUB_ENV
           docker build -f ${BASE_IMAGE}/Dockerfile -t $FULL_IMAGE_NAME ${BASE_IMAGE}/
 
       - name: Test the image works
