@@ -18,7 +18,6 @@ jobs:
       BASE_IMAGE: debian
       HTTP_PORT: 32733
       HTTPS_PORT: 32734
-      VERSION: latest
     steps:
       - uses: actions/checkout@v2
       - name: Login to docker hub
