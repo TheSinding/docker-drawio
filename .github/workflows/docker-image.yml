@@ -31,6 +31,7 @@ jobs:
           # Get draw.io current latest version
           git submodule update --init
           export VERSION=$(cd drawio && git rev-parse --abbrev-ref HEAD)
+          echo $VERSION
           docker build -f ${BASE_IMAGE}/Dockerfile -t ${IMAGE_NAME}:${VERSION}-${BASE_IMAGE} ${BASE_IMAGE}/
 
       - name: Test the image works
