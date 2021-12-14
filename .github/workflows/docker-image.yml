@@ -19,7 +19,6 @@ jobs:
       HTTP_PORT: 32733
       HTTPS_PORT: 32734
       VERSION: latest
-      FULL_IMAGE_NAME: ""
     steps:
       - uses: actions/checkout@v2
       - name: Login to docker hub
@@ -32,12 +31,12 @@ jobs:
           # Get draw.io current latest version
           git submodule update --init
           export VERSION=$(git --git-dir drawio/.git describe --abbrev=0 | sed s/v//)
-          export FULL_IMAGE_NAME=`${IMAGE_NAME}:${VERSION}-${BASE_IMAGE}`
-          docker build -f ${BASE_IMAGE}/Dockerfile -t $FULL_IMAGE_NAME ${BASE_IMAGE}/
+          docker build -f ${BASE_IMAGE}/Dockerfile -t ${IMAGE_NAME}:${VERSION}-${BASE_IMAGE} ${BASE_IMAGE}/
 
       - name: Test the image works
         run: |
-          docker run --name "drawio-${BASE_IMAGE}" -d -p ${HTTP_PORT}:8080 -p ${HTTPS_PORT}:8443 $FULL_IMAGE_NAME
+          env
+          docker run --name "drawio-${BASE_IMAGE}" -d -p ${HTTP_PORT}:8080 -p ${HTTPS_PORT}:8443 ${IMAGE_NAME}:${VERSION}-${BASE_IMAGE}
           sleep 10
           docker exec drawio-${BASE_IMAGE} /bin/bash -c "curl -i /dev/null http://localhost:8080"
 
@@ -45,6 +44,6 @@ jobs:
         run: |
           export GIT_BRANCH=`echo $GITHUB_REF | awk 'BEGIN { FS = "/" } ; { print $3 }'`
           export TAG=`if [ "$GIT_BRANCH" == "v${VERSION}" ] || [ "$GIT_BRANCH" == "master" ]; then echo "latest"; else echo $GIT_BRANCH ; fi`
-          docker tag $FULL_IMAGE_NAME ${IMAGE_NAME}:$TAG;
+          docker tag ${IMAGE_NAME}:${VERSION}-${BASE_IMAGE} ${IMAGE_NAME}:$TAG;
           docker push ${IMAGE_NAME}:${TAG};
-          docker push $FULL_IMAGE_NAME;
+          docker push ${IMAGE_NAME}:${VERSION}-${BASE_IMAGE};
