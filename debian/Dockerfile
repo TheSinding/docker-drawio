@@ -12,7 +12,7 @@ RUN apt-get update -y && \
 RUN cd /tmp && \
     git clone https://github.com/jgraph/drawio.git
 
-RUN cd /tmp/drawio && git checkout tags/v15.1.3 -b older-tag
+RUN cd /tmp/drawio && git checkout tags/v14.6.13 -b older-tag
 
 RUN cd /tmp/drawio/etc/build/ && \
     ant war
