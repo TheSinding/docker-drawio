@@ -1,5 +1,5 @@
 FROM openjdk:11-jdk-slim AS build
-ARG DRAW_IO_TAG
+ARG DRAWIO_TAG
 
 RUN apt-get update -y && \
     # this solves some weird issue with openjdk-11-jdk-headless
@@ -12,7 +12,7 @@ RUN apt-get update -y && \
 RUN cd /tmp && \
     git clone https://github.com/jgraph/drawio.git
 
-RUN cd /tmp/drawio && git checkout tags/v14.6.13 -b older-tag
+RUN cd /tmp/drawio && git checkout tags/${DRAWIO_TAG} -b version-of-drawio
 
 RUN cd /tmp/drawio/etc/build/ && \
     ant war
