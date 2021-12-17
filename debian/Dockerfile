@@ -1,16 +1,20 @@
 FROM openjdk:11-jdk-slim AS build
+ARG DRAW_IO_TAG
 
 RUN apt-get update -y && \
-# this solves some weird issue with openjdk-11-jdk-headless
-# https://github.com/nextcloud/docker/issues/380
+    # this solves some weird issue with openjdk-11-jdk-headless
+    # https://github.com/nextcloud/docker/issues/380
     mkdir -p /usr/share/man/man1 && \
     apt-get install -y \
-        ant \
-        git
+    ant \
+    git
 
 RUN cd /tmp && \
-    git clone --depth 1 https://github.com/jgraph/drawio.git && \
-    cd /tmp/drawio/etc/build/ && \
+    git clone https://github.com/jgraph/drawio.git
+
+RUN cd /tmp/drawio && git checkout tags/v15.5.1 -b older-tag
+
+RUN cd /tmp/drawio/etc/build/ && \
     ant war
 
 FROM tomcat:9-jre11
@@ -19,9 +23,9 @@ LABEL maintainer="JGraph Ltd"
 
 RUN apt-get update -y && \
     apt-get install -y --no-install-recommends \
-        certbot \
-        curl \
-        xmlstarlet && \
+    certbot \
+    curl \
+    xmlstarlet && \
     apt-get autoremove -y --purge && \
     apt-get clean && \
     rm -r /var/lib/apt/lists/*
@@ -34,12 +38,12 @@ RUN mkdir -p $CATALINA_HOME/webapps/draw && \
     rm -rf /tmp/draw.war /tmp/drawio && \
     cd $CATALINA_HOME && \
     xmlstarlet ed \
-        -P -S -L \
-        -i '/Server/Service/Engine/Host/Valve' -t 'elem' -n 'Context' \
-        -i '/Server/Service/Engine/Host/Context' -t 'attr' -n 'path' -v '/' \
-        -i '/Server/Service/Engine/Host/Context[@path="/"]' -t 'attr' -n 'docBase' -v 'draw' \
-        -s '/Server/Service/Engine/Host/Context[@path="/"]' -t 'elem' -n 'WatchedResource' -v 'WEB-INF/web.xml' \
-        conf/server.xml
+    -P -S -L \
+    -i '/Server/Service/Engine/Host/Valve' -t 'elem' -n 'Context' \
+    -i '/Server/Service/Engine/Host/Context' -t 'attr' -n 'path' -v '/' \
+    -i '/Server/Service/Engine/Host/Context[@path="/"]' -t 'attr' -n 'docBase' -v 'draw' \
+    -s '/Server/Service/Engine/Host/Context[@path="/"]' -t 'elem' -n 'WatchedResource' -v 'WEB-INF/web.xml' \
+    conf/server.xml
 
 # Copy docker-entrypoint
 COPY docker-entrypoint.sh /
